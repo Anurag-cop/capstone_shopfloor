@@ -49,6 +49,7 @@ const Dashboard: React.FC = () => {
     setWorkOrders(mockWorkOrders);
     setAlerts(mockAlerts);
     setMetrics(mockMetrics);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Simulate real-time updates
@@ -61,6 +62,7 @@ const Dashboard: React.FC = () => {
     }, 5000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRefresh = async () => {
