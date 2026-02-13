@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAppStore } from '@/store';
-import type { WorkOrder, Operator, Machine, Alert } from '@/types';
+import type { WorkOrder, Operator, Machine, Alert, Allocation, DashboardMetrics } from '@/types';
 
 describe('App Store (Zustand)', () => {
   beforeEach(() => {
     // Reset store state before each test
-    const store = useAppStore.getState();
     useAppStore.setState({
       operators: [],
       machines: [],
@@ -34,8 +33,8 @@ describe('App Store (Zustand)', () => {
     it('should initialize with default metrics', () => {
       const state = useAppStore.getState();
       expect(state.metrics).toBeDefined();
-      expect(state.metrics.utilization).toBeDefined();
-      expect(state.metrics.production).toBeDefined();
+      expect(state.metrics?.utilization).toBeDefined();
+      expect(state.metrics?.production).toBeDefined();
     });
   });
 
@@ -43,10 +42,13 @@ describe('App Store (Zustand)', () => {
     it('should create allocation with unique ID', () => {
       const store = useAppStore.getState();
       
-      const allocation = {
+      const allocation: Omit<Allocation, 'id' | 'allocatedAt'> = {
         workOrderId: 'wo-001',
         operatorId: 'op-001',
         machineId: 'mach-001',
+        status: 'active' as const,
+        allocatedBy: 'test-user',
+        startTime: new Date(),
       };
 
       store.createAllocation(allocation);
@@ -82,10 +84,13 @@ describe('App Store (Zustand)', () => {
       // Set initial work order
       useAppStore.setState({ workOrders: [workOrder] });
 
-      const allocation = {
+      const allocation: Omit<Allocation, 'id' | 'allocatedAt'> = {
         workOrderId: 'wo-001',
         operatorId: 'op-001',
         machineId: 'mach-001',
+        status: 'active' as const,
+        allocatedBy: 'test-user',
+        startTime: new Date(),
       };
 
       store.createAllocation(allocation);
@@ -98,16 +103,22 @@ describe('App Store (Zustand)', () => {
     it('should generate unique allocation IDs for multiple allocations', () => {
       const store = useAppStore.getState();
 
-      const allocation1 = {
+      const allocation1: Omit<Allocation, 'id' | 'allocatedAt'> = {
         workOrderId: 'wo-001',
         operatorId: 'op-001',
         machineId: 'mach-001',
+        status: 'active' as const,
+        allocatedBy: 'test-user',
+        startTime: new Date(),
       };
 
-      const allocation2 = {
+      const allocation2: Omit<Allocation, 'id' | 'allocatedAt'> = {
         workOrderId: 'wo-002',
         operatorId: 'op-002',
         machineId: 'mach-002',
+        status: 'active' as const,
+        allocatedBy: 'test-user',
+        startTime: new Date(),
       };
 
       store.createAllocation(allocation1);
@@ -123,14 +134,15 @@ describe('App Store (Zustand)', () => {
     it('should update existing allocation', () => {
       const store = useAppStore.getState();
 
-      const allocation = {
+      const allocation: Allocation = {
         id: 'alloc-001',
         workOrderId: 'wo-001',
-        operatorIds: ['op-001'],
-        machineIds: ['mach-001'],
-        materialIds: [],
+        operatorId: 'op-001',
+        machineId: 'mach-001',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
       useAppStore.setState({ allocations: [allocation] });
@@ -144,24 +156,26 @@ describe('App Store (Zustand)', () => {
     it('should not affect other allocations when updating one', () => {
       const store = useAppStore.getState();
 
-      const allocation1 = {
+      const allocation1: Allocation = {
         id: 'alloc-001',
         workOrderId: 'wo-001',
-        operatorIds: ['op-001'],
-        machineIds: ['mach-001'],
-        materialIds: [],
+        operatorId: 'op-001',
+        machineId: 'mach-001',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
-      const allocation2 = {
+      const allocation2: Allocation = {
         id: 'alloc-002',
         workOrderId: 'wo-002',
-        operatorIds: ['op-002'],
-        machineIds: ['mach-002'],
-        materialIds: [],
+        operatorId: 'op-002',
+        machineId: 'mach-002',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
       useAppStore.setState({ allocations: [allocation1, allocation2] });
@@ -178,14 +192,15 @@ describe('App Store (Zustand)', () => {
     it('should remove allocation', () => {
       const store = useAppStore.getState();
 
-      const allocation = {
+      const allocation: Allocation = {
         id: 'alloc-001',
         workOrderId: 'wo-001',
-        operatorIds: ['op-001'],
-        machineIds: ['mach-001'],
-        materialIds: [],
+        operatorId: 'op-001',
+        machineId: 'mach-001',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
       useAppStore.setState({ allocations: [allocation] });
@@ -199,24 +214,26 @@ describe('App Store (Zustand)', () => {
     it('should maintain other allocations after removal', () => {
       const store = useAppStore.getState();
 
-      const allocation1 = {
+      const allocation1: Allocation = {
         id: 'alloc-001',
         workOrderId: 'wo-001',
-        operatorIds: ['op-001'],
-        machineIds: ['mach-001'],
-        materialIds: [],
+        operatorId: 'op-001',
+        machineId: 'mach-001',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
-      const allocation2 = {
+      const allocation2: Allocation = {
         id: 'alloc-002',
         workOrderId: 'wo-002',
-        operatorIds: ['op-002'],
-        machineIds: ['mach-002'],
-        materialIds: [],
+        operatorId: 'op-002',
+        machineId: 'mach-002',
         status: 'active' as const,
         startTime: new Date(),
+        allocatedAt: new Date(),
+        allocatedBy: 'test-user',
       };
 
       useAppStore.setState({ allocations: [allocation1, allocation2] });

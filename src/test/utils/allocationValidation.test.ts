@@ -188,11 +188,11 @@ describe('Allocation Validation', () => {
     });
 
     it('should detect different shifts warning', () => {
-      mockOperators[0].shift = 'morning';
+      mockOperators[0].shift = 'morning' as const;
       const secondOp = {
         ...mockOperators[0],
         id: 'op-002',
-        shift: 'afternoon',
+        shift: 'afternoon' as const,
       };
       mockWorkOrder.requirements.operators.count = 2;
       const result = validateAllocation(mockWorkOrder, [mockOperators[0], secondOp], mockMachines);
@@ -224,7 +224,7 @@ describe('Allocation Validation', () => {
       const noSkillOperator = {
         ...mockOperators[0],
         id: 'op-002',
-        skills: [{ id: 'skill-other', name: 'Other', level: 5, certificationRequired: false }],
+        skills: [{ id: 'skill-other', name: 'Other', level: 5 as const, certificationRequired: false }],
       };
       const result = findOptimalResources(mockWorkOrder, [mockOperators[0], noSkillOperator], mockMachines);
       expect(result.suggestedOperators[0].id).toBe('op-001');
